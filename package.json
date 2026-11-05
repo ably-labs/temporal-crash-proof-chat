@@ -10,8 +10,9 @@
     "vendor": "node scripts/vendor.mjs",
     "setup:sandbox": "tsx src/setup-sandbox.ts",
     "typecheck": "tsc --noEmit",
-    "start": "tsx src/main.ts",
-    "verify": "tsx scripts/verify.ts"
+    "start": "npm run build:web && tsx src/main.ts",
+    "verify": "tsx scripts/verify.ts",
+    "build:web": "esbuild web/app.ts --bundle --format=esm --platform=browser --target=es2022 --sourcemap --outfile=public/app.js"
   },
   "dependencies": {
     "@ably/ai-transport": "file:vendor/ably-ai-transport.tgz",

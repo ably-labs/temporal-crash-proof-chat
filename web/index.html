@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Crash-proof chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Manrope:wght@400;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <header class="page-header">
+      <div class="title">
+        <span class="eyebrow">Temporal × Ably</span>
+        <h1>Crash-proof chat</h1>
+      </div>
+      <span class="badge badge-outline header-badge" id="temporal-badge"><span class="dot"></span>Temporal</span>
+      <span class="badge badge-outline header-badge" id="ably-badge"><span class="dot"></span>Ably</span>
+      <a id="temporal-ui-link" href="#" target="_blank" rel="noopener">Open Temporal UI</a>
+    </header>
+
+    <main class="layout">
+      <section class="workers" aria-label="Workers" id="workers"></section>
+
+      <nav class="tabs" aria-label="Panels">
+        <a href="#chat">Chat</a>
+        <a href="#temporal-panel">Temporal</a>
+        <a href="#ably-panel">Ably</a>
+      </nav>
+
+      <section class="card chat" id="chat" aria-label="Agent chat">
+        <div class="chat-header">
+          <span class="avatar" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="2"></rect><path d="M12 8V4"></path><path d="M9 14h.01"></path><path d="M15 14h.01"></path></svg>
+          </span>
+          <div class="chat-title">
+            <span class="chat-name">Trip planner agent</span>
+            <span class="mono muted" id="chat-channel">connecting…</span>
+          </div>
+          <span class="badge badge-violet-outline">AI Transport · Vercel</span>
+        </div>
+
+        <div class="messages" id="messages" aria-live="polite">
+          <p class="empty" id="empty-state">Ask for a trip plan, then kill the worker that's streaming the reply.</p>
+        </div>
+
+        <form class="composer" id="composer">
+          <label for="prompt" class="visually-hidden">Message</label>
+          <input id="prompt" type="text" autocomplete="off" placeholder="Message the agent" value="Plan three days in Lisbon in March. I like food and walking, not museums." />
+          <button type="submit" class="send" id="send" aria-label="Send">
+            <span class="send-label">Send</span>
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg>
+          </button>
+        </form>
+      </section>
+
+      <section class="card panel temporal" id="temporal-panel" aria-label="Temporal activities">
+        <div class="panel-header">
+          <h2>What Temporal recorded</h2>
+          <a class="mono" id="turn-link" target="_blank" rel="noopener"></a>
+        </div>
+        <ol class="activities" id="activities">
+          <li class="placeholder">The turn's activities appear here.</li>
+        </ol>
+      </section>
+
+      <section class="card panel ably" id="ably-panel" aria-label="What Ably sees">
+        <div class="panel-header">
+          <h2>What Ably sees</h2>
+        </div>
+        <div class="metrics" id="metrics"></div>
+        <div class="log" id="log"></div>
+      </section>
+    </main>
+  </body>
+</html>
