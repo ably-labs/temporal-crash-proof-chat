@@ -1,5 +1,6 @@
 // The browser app: layout option A. It loads the demo's settings, then wires up each panel.
 
+import { createAblyLog } from './ably-log.js';
 import type { DemoConfig } from './config.js';
 import { createChat } from './chat.js';
 import { ConnectionMap } from './connections.js';
@@ -19,13 +20,16 @@ byId('ably-badge').lastChild!.textContent = `Ably ${config.endpoint ?? 'producti
 
 const session = await createSession(config);
 const ablyBadge = byId('ably-badge');
-session.client.connection.on((change) => {
-  ablyBadge.classList.toggle('ok', change.current === 'connected');
-  ablyBadge.classList.toggle('bad', change.current !== 'connected' && change.current !== 'connecting');
-});
+const showConnection = (state: string) => {
+  ablyBadge.classList.toggle('ok', state === 'connected');
+  ablyBadge.classList.toggle('bad', state !== 'connected' && state !== 'connecting');
+};
+showConnection(session.client.connection.state);
+session.client.connection.on((change) => showConnection(change.current));
 
 const connections = new ConnectionMap();
 createWorkers(session, connections);
+createAblyLog(session, connections);
 
 const temporal = createTemporalPanel();
 
