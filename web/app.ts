@@ -2,8 +2,10 @@
 
 import type { DemoConfig } from './config.js';
 import { createChat } from './chat.js';
+import { ConnectionMap } from './connections.js';
 import { byId, getJson } from './dom.js';
 import { createSession } from './session.js';
+import { createWorkers } from './workers.js';
 
 const config = await getJson<DemoConfig>('/api/config');
 
@@ -20,6 +22,9 @@ session.client.connection.on((change) => {
   ablyBadge.classList.toggle('ok', change.current === 'connected');
   ablyBadge.classList.toggle('bad', change.current !== 'connected' && change.current !== 'connecting');
 });
+
+const connections = new ConnectionMap();
+createWorkers(session, connections);
 
 createChat(session, {
   onTurnStarted() {},
