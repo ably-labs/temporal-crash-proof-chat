@@ -5,6 +5,7 @@ import { createChat } from './chat.js';
 import { ConnectionMap } from './connections.js';
 import { byId, getJson } from './dom.js';
 import { createSession } from './session.js';
+import { createTemporalPanel } from './temporal.js';
 import { createWorkers } from './workers.js';
 
 const config = await getJson<DemoConfig>('/api/config');
@@ -26,6 +27,10 @@ session.client.connection.on((change) => {
 const connections = new ConnectionMap();
 createWorkers(session, connections);
 
+const temporal = createTemporalPanel();
+
 createChat(session, {
-  onTurnStarted() {},
+  onTurnStarted(turn) {
+    temporal.show(turn);
+  },
 });
