@@ -1,0 +1,31 @@
+{
+  "name": "temporal-crash-proof-chat",
+  "private": true,
+  "type": "module",
+  "description": "A chat agent that runs as a Temporal workflow and streams its reply over Ably with AI Transport and a realtime channel pool. Kill the worker mid-reply and the reply carries on from the other one.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "vendor": "node scripts/vendor.mjs",
+    "setup:sandbox": "tsx src/setup-sandbox.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "4.0.90",
+    "@temporalio/activity": "1.24.0",
+    "@temporalio/client": "1.24.0",
+    "@temporalio/common": "1.24.0",
+    "@temporalio/plugin": "1.24.0",
+    "@temporalio/worker": "1.24.0",
+    "@temporalio/workflow": "1.24.0",
+    "ai": "7.0.155",
+    "zod": "^4.1.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.21.0",
+    "typescript": "~5.9.0"
+  }
+}
