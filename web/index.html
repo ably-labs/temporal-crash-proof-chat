@@ -49,6 +49,12 @@
           <p class="empty" id="empty-state">Ask for a trip plan, then kill the worker that's streaming the reply.</p>
         </div>
 
+        <fieldset class="injection">
+          <legend>Failure injection</legend>
+          <label><input type="checkbox" id="lose-first-response" /> Lose the first REST response</label>
+          <label><input type="checkbox" id="idempotent-publishing" checked /> Idempotent publishing</label>
+        </fieldset>
+
         <form class="composer" id="composer">
           <label for="prompt" class="visually-hidden">Message</label>
           <input id="prompt" type="text" autocomplete="off" placeholder="Message the agent" value="Plan three days in Lisbon in March. I like food and walking, not museums." />

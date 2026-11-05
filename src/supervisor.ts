@@ -4,7 +4,7 @@
 import { fork, type ChildProcess } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { WORKER_NAMES, type WorkerName } from './config.js';
-import type { WorkerMessage } from './supervisor-messages.js';
+import type { SupervisorMessage, WorkerMessage } from './supervisor-messages.js';
 
 const WORKER_PATH = fileURLToPath(new URL('./worker.ts', import.meta.url));
 
@@ -30,6 +30,8 @@ interface WorkerProcess {
 
 export class Supervisor {
   private readonly workers = new Map<WorkerName, WorkerProcess>();
+  /** The turns whose plugin writes lose their first response. Sent to every worker, and to a worker when it starts. */
+  private readonly loseFirstResponse = new Set<string>();
 
   constructor() {
     for (const name of WORKER_NAMES) {
@@ -66,6 +68,7 @@ export class Supervisor {
       if (worker.child !== child) return;
       if (message.type === 'ready') {
         worker.status.state = 'running';
+        this.send(child, this.loseFirstResponseMessage());
       } else if (message.type === 'pool') {
         worker.status.poolOpen = message.state === 'open';
         worker.status.poolSize = message.size;
@@ -82,6 +85,23 @@ export class Supervisor {
       };
       console.log(`[supervisor] worker ${name} exited (${signal ?? `code ${code}`})`);
     });
+  }
+
+  /** Makes the turn's plugin writes lose their first response, on whichever worker runs them. */
+  addLoseFirstResponse(workflowId: string) {
+    this.loseFirstResponse.add(workflowId);
+    const message = this.loseFirstResponseMessage();
+    for (const { child } of this.workers.values()) {
+      if (child) this.send(child, message);
+    }
+  }
+
+  private loseFirstResponseMessage(): SupervisorMessage {
+    return { type: 'lose-first-response', workflowIds: [...this.loseFirstResponse] };
+  }
+
+  private send(child: ChildProcess, message: SupervisorMessage) {
+    if (child.connected) child.send(message);
   }
 
   /** Kills the worker at once, as a crash would. */

@@ -69,6 +69,8 @@ export function createChat(session: Session, events: ChatEvents) {
   const form = byId<HTMLFormElement>('composer');
   const input = byId<HTMLInputElement>('prompt');
   const send = byId<HTMLButtonElement>('send');
+  const loseFirstResponse = byId<HTMLInputElement>('lose-first-response');
+  const idempotentPublishing = byId<HTMLInputElement>('idempotent-publishing');
 
   byId('chat-channel').textContent = `${channelName} · AI Transport`;
 
@@ -253,7 +255,14 @@ export function createChat(session: Session, events: ChatEvents) {
       await adaptor.send({ type: 'user-message', message: userMessage });
       history.push(userMessage);
       view.prompt = userMessage;
-      const turn = await postJson<Turn>('/api/turns', { channel: channelName, clientId, messages: history, replyId });
+      const turn = await postJson<Turn>('/api/turns', {
+        channel: channelName,
+        clientId,
+        messages: history,
+        replyId,
+        loseFirstResponse: loseFirstResponse.checked,
+        idempotentPublishing: idempotentPublishing.checked,
+      });
       events.onTurnStarted(turn);
     } catch (err) {
       console.error(err);

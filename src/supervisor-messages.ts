@@ -6,3 +6,8 @@ export type WorkerMessage =
   | { type: 'ready' }
   /** The worker's channel pool has opened or closed. */
   | { type: 'pool'; state: 'open' | 'closed'; size: number };
+
+/** From the supervisor to a worker. */
+export type SupervisorMessage =
+  /** Every workflow ID whose plugin writes should lose their first response, replacing the worker's set. */
+  { type: 'lose-first-response'; workflowIds: string[] };

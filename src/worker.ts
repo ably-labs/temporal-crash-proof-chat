@@ -12,7 +12,8 @@ import { createRealtimeChannelPool } from '@ably/pubsub-server';
 import { AblyHttpPlugin } from '@ably/pubsub-server/temporal';
 import { createActivities } from './activities.js';
 import { config } from './config.js';
-import type { WorkerMessage } from './supervisor-messages.js';
+import { loseFirstResponse, loseFirstResponseInterceptor } from './failure-injection.js';
+import type { SupervisorMessage, WorkerMessage } from './supervisor-messages.js';
 
 const name = process.env.WORKER_NAME ?? 'A';
 const tag = `[worker ${name}]`;
@@ -21,6 +22,13 @@ const tag = `[worker ${name}]`;
 function report(message: WorkerMessage) {
   process.send?.(message);
 }
+
+process.on('message', (message: SupervisorMessage) => {
+  if (message.type === 'lose-first-response') {
+    loseFirstResponse.clear();
+    for (const workflowId of message.workflowIds) loseFirstResponse.add(workflowId);
+  }
+});
 
 // Checked now rather than on the first turn, so a missing key stops the worker at startup.
 void config.anthropicApiKey;
@@ -48,6 +56,7 @@ const worker = await Worker.create({
   workflowsPath: fileURLToPath(new URL('./workflows.ts', import.meta.url)),
   activities: createActivities(pool, name),
   plugins: [new AblyHttpPlugin({ clientOptions: { key: config.ablyKey, endpoint: config.ablyEndpoint } })],
+  interceptors: { activity: [loseFirstResponseInterceptor] },
   // Without a workflow cache, every workflow task goes to the shared task queue rather than to the worker that ran
   // the last one. Otherwise, after the worker that last ran a turn is killed, the turn's next workflow task waits for
   // the sticky queue's timeout before the other worker can take it.
@@ -67,4 +76,6 @@ try {
   report({ type: 'pool', state: 'closed', size: config.poolSize });
   await connection.close();
   console.log(`${tag} stopped, channel pool closed`);
+  // The supervisor's message listener would otherwise keep the process alive.
+  process.disconnect?.();
 }

@@ -11,8 +11,11 @@
 //
 // The model's text differs between runs, so the checks compare structure and equality, not content.
 //
-//   npm run verify             the crash case
-//   npm run verify -- --no-kill   a turn with no failure
+//   npm run verify                          the crash case
+//   npm run verify -- --no-kill             a turn with no failure
+//   npm run verify -- --lose-first-response  also lose the first response of each plugin write: with idempotent
+//                                            publishing, each status still arrives once
+//   npm run verify -- --lose-first-response --no-idempotency   ...and without it, each status arrives twice
 
 import { vercelAdaptor, vercelDecoder } from '@ably/ai-transport/vercel';
 import { createHttpClient, createRealtimeClient, type InboundMessage } from '@ably/pubsub-server';
@@ -22,6 +25,10 @@ import { RETRIED_ANNOTATION, STATUS_MESSAGE, type TurnStatus } from '../src/prot
 import type { ChatTurnResult } from '../src/workflows.js';
 
 const kill = !process.argv.includes('--no-kill');
+const loseFirstResponse = process.argv.includes('--lose-first-response');
+const idempotentPublishing = !process.argv.includes('--no-idempotency');
+/** A lost response is retried, and only an idempotent retry is discarded by Ably. */
+const expectedStatusCopies = loseFirstResponse && !idempotentPublishing ? 2 : 1;
 /** How many text deltas of the first attempt to wait for before killing its worker. */
 const DELTAS_BEFORE_KILL = 15;
 const TURN_TIMEOUT_MS = 180_000;
@@ -93,6 +100,8 @@ const turn = await api<{ workflowId: string; replyId: string }>('/api/turns', {
   channel: channelName,
   clientId,
   messages: [userMessage],
+  loseFirstResponse,
+  idempotentPublishing,
 });
 console.log(`Started ${turn.workflowId} on ${channelName}`);
 
@@ -168,8 +177,9 @@ if (reply) {
 
 const ours = statuses.filter((status) => status.replyId === turn.replyId);
 const count = (state: string) => ours.filter((status) => status.state === state).length;
-check(count('thinking') === 1, `one "thinking" status (${count('thinking')})`);
-check(count('complete') === 1, `one "complete" status (${count('complete')})`);
+for (const state of ['thinking', 'complete']) {
+  check(count(state) === expectedStatusCopies, `${expectedStatusCopies} "${state}" status (${count(state)})`);
+}
 
 realtime.close();
 console.log(failures.length === 0 ? '\nPASS' : `\nFAIL: ${failures.length} check(s) failed`);

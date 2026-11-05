@@ -33,6 +33,10 @@ export interface TurnRequest {
    * even if they arrive before this request's response.
    */
   replyId?: string;
+  /** Fail the first attempt of each of the turn's plugin writes after it reaches Ably. */
+  loseFirstResponse?: boolean;
+  /** False to publish the turn's statuses without idempotency. */
+  idempotentPublishing?: boolean;
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -103,9 +107,15 @@ export async function startServer(supervisor: Supervisor) {
         clientId: body.clientId,
         replyId,
         messages: body.messages,
+        idempotentPublishing: body.idempotentPublishing !== false,
       };
+      if (body.loseFirstResponse) supervisor.addLoseFirstResponse(workflowId);
       const handle = await temporal.workflow.start('chatTurn', { taskQueue: config.taskQueue, workflowId, args: [input] });
-      console.log(`[server] started ${workflowId} on ${body.channel}`);
+      const injected = [
+        body.loseFirstResponse && 'losing first responses',
+        body.idempotentPublishing === false && 'without idempotency',
+      ].filter(Boolean);
+      console.log(`[server] started ${workflowId} on ${body.channel}${injected.length ? ` (${injected.join(', ')})` : ''}`);
       return json(res, 200, {
         workflowId,
         runId: handle.firstExecutionRunId,
