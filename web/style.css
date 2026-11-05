@@ -348,6 +348,11 @@ h3 {
   color: var(--faint);
 }
 
+/* A turn that ended without a reply (failed or skipped) keeps only its badges and caption. */
+.reply.done .reply-bubble:empty {
+  display: none;
+}
+
 .reply.streaming .reply-bubble::after {
   content: '';
   display: inline-block;
