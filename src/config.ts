@@ -40,8 +40,13 @@ export const config = {
   get ablyKey(): string {
     return required('ABLY_KEY');
   },
-  /** For example `nonprod:sandbox`, which a sandbox key needs. Unset means production. */
-  ablyEndpoint: process.env.ABLY_ENDPOINT || undefined,
+  /**
+   * For example `nonprod:sandbox`, which a sandbox key needs. Unset means production. Read lazily, like the key, since
+   * `npm start` replaces both when the sandbox app expires.
+   */
+  get ablyEndpoint(): string | undefined {
+    return process.env.ABLY_ENDPOINT || undefined;
+  },
   /** Checked by the workers at startup, since only they call the model. */
   get anthropicApiKey(): string {
     return required('ANTHROPIC_API_KEY');

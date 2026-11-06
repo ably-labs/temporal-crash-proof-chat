@@ -46,8 +46,14 @@ export async function startServer(supervisor: Supervisor) {
   const temporal = new Client({ connection, namespace: config.temporalNamespace });
   const observed = new AttemptObservations();
 
-  // Only used to sign token requests for the browser. Signing happens locally, without a request to Ably.
-  const ably = createHttpClient({ key: config.ablyKey, endpoint: config.ablyEndpoint });
+  // Only used to sign token requests for the browser. Signing happens locally, without a request to Ably. Made again
+  // when the key changes, which it does when an expired sandbox app is replaced.
+  let signer: { key: string; client: ReturnType<typeof createHttpClient> } | undefined;
+  function tokenSigner() {
+    const key = config.ablyKey;
+    if (signer?.key !== key) signer = { key, client: createHttpClient({ key, endpoint: config.ablyEndpoint }) };
+    return signer.client;
+  }
 
   async function handle(req: IncomingMessage, res: ServerResponse) {
     const url = new URL(req.url ?? '/', 'http://localhost');
@@ -85,7 +91,7 @@ export async function startServer(supervisor: Supervisor) {
       if (!isChatChannel(channel)) {
         return json(res, 400, { error: `channel must start with ${config.channelPrefix}` });
       }
-      const tokenRequest = await ably.auth.createTokenRequest({
+      const tokenRequest = await tokenSigner().auth.createTokenRequest({
         clientId: url.searchParams.get('clientId') || 'user',
         capability: { [channel]: ['publish', 'subscribe', 'presence', 'history'] },
       });

@@ -16,13 +16,17 @@ byId<HTMLAnchorElement>('temporal-ui-link').href =
 const temporalBadge = byId('temporal-badge');
 temporalBadge.lastChild!.textContent = `Temporal ${new URL(config.temporalUiUrl).hostname}`;
 temporalBadge.classList.add('ok');
-byId('ably-badge').lastChild!.textContent = `Ably ${config.endpoint ?? 'production'}`;
+const ablyBadge = byId('ably-badge');
+const ablyLabel = `Ably ${config.endpoint ?? 'production'}`;
+ablyBadge.lastChild!.textContent = ablyLabel;
 
 const session = await createSession(config);
-const ablyBadge = byId('ably-badge');
 const showConnection = (state: string) => {
   ablyBadge.classList.toggle('ok', state === 'connected');
   ablyBadge.classList.toggle('bad', state !== 'connected' && state !== 'connecting');
+  // A failed connection doesn't recover by itself. With a sandbox app, it usually means the app expired and the demo
+  // has made a new one, which a reload picks up.
+  ablyBadge.lastChild!.textContent = state === 'failed' ? `${ablyLabel} · reload the page` : ablyLabel;
 };
 showConnection(session.client.connection.state);
 session.client.connection.on((change) => showConnection(change.current));

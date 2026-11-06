@@ -7,6 +7,8 @@ import { WORKER_NAMES, type WorkerName } from './config.js';
 import type { SupervisorMessage, WorkerMessage } from './supervisor-messages.js';
 
 const WORKER_PATH = fileURLToPath(new URL('./worker.ts', import.meta.url));
+/** How long a worker gets to shut down gracefully before it is killed. */
+const STOP_TIMEOUT_MS = 10_000;
 
 export type ProcessState = 'starting' | 'running' | 'killed' | 'exited';
 
@@ -113,13 +115,20 @@ export class Supervisor {
     console.log(`[supervisor] killed worker ${name}`);
   }
 
-  /** Stops every worker gracefully, and resolves once they have exited. */
+  /**
+   * Stops every worker gracefully, and resolves once they have exited. A worker that hasn't exited after a few seconds
+   * is killed: a worker whose Ably app has gone may not be able to close its pool.
+   */
   async stopAll() {
     await Promise.all(
       [...this.workers.values()].map(({ child }) => {
         if (!child || child.exitCode !== null) return;
         return new Promise<void>((resolve) => {
-          child.once('exit', () => resolve());
+          const timeout = setTimeout(() => child.kill('SIGKILL'), STOP_TIMEOUT_MS);
+          child.once('exit', () => {
+            clearTimeout(timeout);
+            resolve();
+          });
           child.kill('SIGTERM');
         });
       }),

@@ -38,11 +38,12 @@ You need Node.js 22 or later, pnpm (to build AI Transport), the [Temporal CLI](h
 ```sh
 npm run vendor          # clones, merges and builds the unreleased Ably libraries into vendor/ (a few minutes)
 npm install
-npm run setup:sandbox   # creates an Ably sandbox app and writes ABLY_KEY and ABLY_ENDPOINT to .env
 echo 'ANTHROPIC_API_KEY=sk-ant-...' >> .env
 ```
 
-To use your own Ably app instead of a sandbox one, copy `.env.example` to `.env` and set `ABLY_KEY`. Its `mutable` namespace needs mutable messages enabled, for appends, deletes and annotations. `.env.example` lists the other settings, such as `MODEL` (default `claude-sonnet-5-5`) and `POOL_SIZE` (default 3).
+With no `ABLY_KEY` in `.env`, the demo runs on an Ably sandbox app. `npm start` creates one and writes `ABLY_KEY` and `ABLY_ENDPOINT` to `.env`, keeping your other settings. A sandbox app expires after about an hour, so while the demo runs it checks every 30 seconds, and when the app has gone it creates a new one and restarts the workers. An open page then shows "reload the page" on its Ably badge. `npm run setup:sandbox` creates a new app by hand.
+
+To use your own Ably app instead, which doesn't expire, copy `.env.example` to `.env` and set `ABLY_KEY`. Its `mutable` namespace needs mutable messages enabled, for appends, deletes and annotations. `.env.example` lists the other settings, such as `MODEL` (default `claude-sonnet-5-5`) and `POOL_SIZE` (default 3).
 
 `npm run vendor` builds the SDK from `main` merged with the channel pool branch, and AI Transport from `main`, each pinned to the commit the demo was checked against. See the top of `scripts/vendor.mjs` to build other commits.
 
@@ -97,6 +98,7 @@ The model's text differs between runs, so it checks structure and equality, not 
 | `src/server.ts` | The web server: tokens, turns, a turn's activity attempts, and the workers. |
 | `src/failure-injection.ts` | The "lose the first REST response" interceptor. |
 | `web/` | The browser app. |
+| `src/sandbox.ts` | Creates a sandbox app, and replaces it when it expires. |
 | `scripts/vendor.mjs`, `scripts/verify.ts` | Vendoring, and the headless check. |
 
 ## Known gaps
