@@ -2,8 +2,8 @@
 // own after about an hour, after which its key fails with "No key found" (40400), so the demo replaces it when that
 // happens.
 //
-// Each app has a `mutable` namespace with mutable messages enabled, which the chat channels (`mutable:chat-*`) need
-// for appends, deletes and annotations.
+// Each app has an `ai` namespace with mutable messages enabled, which the chat channels (`ai:chat-*`) need for appends,
+// deletes and annotations. It's set up the way the dashboard sets one up for a new AI Transport app.
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { PROJECT_DIR } from './config.js';
@@ -30,7 +30,7 @@ export async function createSandboxApp(): Promise<string> {
   const response = await fetch(`https://${SANDBOX_HOST}/apps`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ keys: [{}], namespaces: [{ id: 'mutable', mutableMessages: true }] }),
+    body: JSON.stringify({ keys: [{}], namespaces: [{ id: 'ai', persisted: true, mutableMessages: true }] }),
     signal: AbortSignal.timeout(30_000),
   });
   if (!response.ok) {

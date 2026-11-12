@@ -11,7 +11,7 @@ It shows three Ably libraries working together:
 ## How a turn works
 
 ```
-browser ── vercelAdaptor.send(user-message) ──▶ Ably channel mutable:chat-<id>
+browser ── vercelAdaptor.send(user-message) ──▶ Ably channel ai:chat-<id>
 browser ── POST /api/turns ──▶ server ──▶ Temporal: start chatTurn
 
 chatTurn (workflow, on either worker)
@@ -42,7 +42,7 @@ echo 'ANTHROPIC_API_KEY=sk-ant-...' >> .env
 
 With no `ABLY_KEY` in `.env`, the demo runs on an Ably sandbox app. `pnpm start` creates one and writes `ABLY_KEY` and `ABLY_ENDPOINT` to `.env`, keeping your other settings. A sandbox app expires after about an hour, so while the demo runs it checks every 30 seconds, and when the app has gone it creates a new one and restarts the workers. An open page then shows "reload the page" on its Ably badge. `pnpm setup:sandbox` creates a new app by hand.
 
-To use your own Ably app instead, which doesn't expire, copy `.env.example` to `.env` and set `ABLY_KEY`. Its `mutable` namespace needs mutable messages enabled, for appends, deletes and annotations. `.env.example` lists the other settings, such as `MODEL` (default `claude-sonnet-5-5`) and `POOL_SIZE` (default 3).
+To use your own Ably app instead, which doesn't expire, copy `.env.example` to `.env` and set `ABLY_KEY`. It needs an `ai` namespace with mutable messages enabled, for appends, deletes and annotations. An app created in the dashboard with AI Transport as its use case has one already. `.env.example` lists the other settings, such as `MODEL` (default `claude-sonnet-5-5`) and `POOL_SIZE` (default 3).
 
 The Ably releases the demo needs are newer than a week. If your pnpm config sets `minimumReleaseAge`, `pnpm-workspace.yaml` lets those exact versions through, and nothing else.
 

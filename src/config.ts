@@ -56,9 +56,10 @@ export const config = {
   poolSize: positiveInteger('POOL_SIZE', 3),
   /**
    * Each conversation gets its own channel, named with this prefix. The namespace needs message appends, deletes and
-   * annotations enabled (a `mutableMessages` rule), which `pnpm setup:sandbox` sets up.
+   * annotations enabled (a `mutableMessages` rule). The `ai` namespace has one in a sandbox app the demo creates, and
+   * in an app created in the dashboard for AI Transport.
    */
-  channelPrefix: process.env.CHANNEL_PREFIX ?? 'mutable:chat-',
+  channelPrefix: process.env.CHANNEL_PREFIX ?? 'ai:chat-',
   port: positiveInteger('PORT', 4300),
   temporalAddress: process.env.TEMPORAL_ADDRESS ?? 'localhost:7233',
   temporalNamespace: process.env.TEMPORAL_NAMESPACE ?? 'default',
