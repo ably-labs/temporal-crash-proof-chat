@@ -1,5 +1,5 @@
 // Settings shared by the workers, the web server and the verify script. Values come from the environment, and from a
-// `.env` file in the project directory if there is one (`npm run setup:sandbox` writes it).
+// `.env` file in the project directory if there is one (`pnpm setup:sandbox` writes it).
 
 import { fileURLToPath } from 'node:url';
 
@@ -42,7 +42,7 @@ export const config = {
   },
   /**
    * For example `nonprod:sandbox`, which a sandbox key needs. Unset means production. Read lazily, like the key, since
-   * `npm start` replaces both when the sandbox app expires.
+   * `pnpm start` replaces both when the sandbox app expires.
    */
   get ablyEndpoint(): string | undefined {
     return process.env.ABLY_ENDPOINT || undefined;
@@ -56,7 +56,7 @@ export const config = {
   poolSize: positiveInteger('POOL_SIZE', 3),
   /**
    * Each conversation gets its own channel, named with this prefix. The namespace needs message appends, deletes and
-   * annotations enabled (a `mutableMessages` rule), which `npm run setup:sandbox` sets up.
+   * annotations enabled (a `mutableMessages` rule), which `pnpm setup:sandbox` sets up.
    */
   channelPrefix: process.env.CHANNEL_PREFIX ?? 'mutable:chat-',
   port: positiveInteger('PORT', 4300),

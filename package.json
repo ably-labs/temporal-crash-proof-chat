@@ -6,19 +6,19 @@
   "engines": {
     "node": ">=22"
   },
+  "packageManager": "pnpm@11.10.0",
   "scripts": {
-    "vendor": "node scripts/vendor.mjs",
     "setup:sandbox": "tsx src/setup-sandbox.ts",
     "typecheck": "tsc --noEmit",
-    "start": "npm run build:web && tsx src/main.ts",
+    "start": "pnpm build:web && tsx src/main.ts",
     "verify": "tsx scripts/verify.ts",
     "build:web": "esbuild web/app.ts --bundle --format=esm --platform=browser --target=es2022 --sourcemap --outfile=public/app.js"
   },
   "dependencies": {
-    "@ably/ai-transport": "file:vendor/ably-ai-transport.tgz",
-    "@ably/pubsub-core": "file:vendor/ably-pubsub-core.tgz",
-    "@ably/pubsub-device": "file:vendor/ably-pubsub-device.tgz",
-    "@ably/pubsub-server": "file:vendor/ably-pubsub-server.tgz",
+    "@ably/ai-transport": "1.0.0",
+    "@ably/pubsub-core": "3.1.0",
+    "@ably/pubsub-device": "3.1.0",
+    "@ably/pubsub-server": "3.1.0",
     "@ai-sdk/anthropic": "4.0.90",
     "@temporalio/activity": "1.24.0",
     "@temporalio/client": "1.24.0",
@@ -34,8 +34,5 @@
     "esbuild": "^0.28.2",
     "tsx": "^4.21.0",
     "typescript": "~5.9.0"
-  },
-  "overrides": {
-    "@ably/pubsub-core": "$@ably/pubsub-core"
   }
 }

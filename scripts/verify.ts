@@ -1,4 +1,4 @@
-// End-to-end check, without a browser. Needs the demo running (`npm start`).
+// End-to-end check, without a browser. Needs the demo running (`pnpm start`).
 //
 // It does what the browser does: enters presence on a new conversation channel, decodes the channel with AI
 // Transport's Vercel decoder, publishes a user message and starts a turn. Once the reply is streaming, it kills the
@@ -11,11 +11,11 @@
 //
 // The model's text differs between runs, so the checks compare structure and equality, not content.
 //
-//   npm run verify                          the crash case
-//   npm run verify -- --no-kill             a turn with no failure
-//   npm run verify -- --lose-first-response  also lose the first response of each plugin write: with idempotent
-//                                            publishing, each status still arrives once
-//   npm run verify -- --lose-first-response --no-idempotency   ...and without it, each status arrives twice
+//   pnpm verify                                          the crash case
+//   pnpm verify --no-kill                                a turn with no failure
+//   pnpm verify --lose-first-response                    also lose the first response of each plugin write: with idempotent
+//                                                        publishing, each status still arrives once
+//   pnpm verify --lose-first-response --no-idempotency   ...and without it, each status arrives twice
 
 import { vercelAdaptor, vercelDecoder } from '@ably/ai-transport/vercel';
 import { createHttpClient, createRealtimeClient, type InboundMessage } from '@ably/pubsub-server';

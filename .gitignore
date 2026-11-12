@@ -1,7 +1,3 @@
 node_modules/
-vendor/
-.vendor-src/
 public/
 .env
-# Records the vendored tarballs' hashes, which change on every vendor build.
-package-lock.json

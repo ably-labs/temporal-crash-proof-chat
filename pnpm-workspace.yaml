@@ -1,0 +1,14 @@
+# Lets these releases in before they are a week old, despite a `minimumReleaseAge` setting. Each is an Ably release
+# the demo was checked against, and any other version still has to wait. Remove an entry once its release is a week old.
+minimumReleaseAgeExclude:
+  - '@ably/pubsub-core@3.1.0'
+  - '@ably/pubsub-server@3.1.0'
+  - '@ably/pubsub-device@3.1.0'
+  - '@ably/ai-transport@1.0.0'
+
+# The demo runs without these install scripts: esbuild and @swc/core take their binaries from platform-specific
+# packages instead. So they stay off.
+allowBuilds:
+  '@swc/core': false
+  esbuild: false
+  protobufjs: false

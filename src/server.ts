@@ -66,7 +66,7 @@ export async function startServer(supervisor: Supervisor) {
         res.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-store' });
         res.end(body);
       } catch {
-        json(res, 404, { error: `${file} is missing. Start the demo with \`npm start\`, which builds it.` });
+        json(res, 404, { error: `${file} is missing. Start the demo with \`pnpm start\`, which builds it.` });
       }
       return;
     }
